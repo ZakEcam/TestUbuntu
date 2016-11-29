@@ -27,6 +27,7 @@ struct linux_dirent {
 	char d_name[];
 };
 /*Functions*/
+
 //Ordering from an old array to a new array and using qsort manpage
 /* void qsort(void *base, size_t nmemb, size_t size,
 int (*compar)(const void*, const void*));*/
