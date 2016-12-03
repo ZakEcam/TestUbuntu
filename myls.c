@@ -27,27 +27,30 @@ struct linux_dirent {
 
 //Comparison Manpage strcasecmp and strcmp 
 //Hidden files must be ordered when using ls -l
-int alphaOrder (constant char *a, cont char *b){
-	int r = strcasecmp(a,b);
+/*int alphaOrder (const void *a, const void *b){
+	//Need to return an integer
+	char *acast = *(char**)a;
+	char *bcast = *(char**)b;
 	//ex. : .folder, .file
-	int hidden_a = a[0] == '.';
-	int hidden_b = b[0] == '.';
-	if(hidden_a)
-		hidden_a += sizeof(char);
-	if(hidden_b)
-		hidden_b += sizeof(char);
-	if(r){
+	int hidden_a = acast[0] == '.';
+	int hidden_b = bcast[0] == '.';
+	int r = strcasecmp(acast,bcast);
+	if(hidden_a == 1)
+		acast += sizeof(char);
+	if(hidden_b == 1)
+		bcast += sizeof(char);
+	if(r == 1){
 		return r;
 	} else {
-		r= -strcmp(a,b);
-		if(r)
+		r= -strcmp(acast,bcast);
+		if(r == 1)
 		return(r);
-		if(hidden_a)
+		if(hidden_a == 1) 
 		return 1;
-		if(hidden_b)
+		if(hidden_b == 1)
 		return -1;
 	}
-}
+}*/
 //Checking type
 int if_dir(char *file)
 {
@@ -109,7 +112,7 @@ int file_group(struct stat *stats, char **group){
 	printf("%s",time); 
 }*/
 //Permissions d-xr-wr-x
-int permission(struct stat *stats, char **permission){
+int file_permission(struct stat *stats, char **permission){
 	mode_t mode;
 	char *str = calloc(11,sizeof(char));
 	if (str==NULL)
@@ -245,6 +248,10 @@ int main(int argc, char *argv[]){
 	//Check if current directory or subdirectory using optindex
 	/*optind = 1, So if there is argc = 1, there are no options and
 	 arguments/path */
+	extern int optind;
+	//Test Segmentation core dumped
+	if (argc < 2)
+		printf("%s", "here bug");
 	if (argc - optind == 0){
 		path = 1;
 		d_names[0] = strdup(".");
@@ -298,14 +305,14 @@ int main(int argc, char *argv[]){
 		
 		if (flag_recursive == 1)
             printf("%s:\n", d_names[d_index]);
-		if (disorder_flag == 0)
+//		if (disorder_flag == 0)
 			//Ordering directories and files
-            qsort(files, filelength, sizeof(char*), alphaOrder);
-		
-        for(a = 0; j < filenames_len; a++) {
-            f_hidden = files[j][0] == '.';
+   // !segmentation        qsort(files, filelength, sizeof(char*), alphaOrder);
+	int a;		
+        for(a = 0; a < filelength; a++) {
+            f_hidden = files[a][0] == '.';
             // Filter hidden files
-            if ((flag_all == 1) {
+            if (flag_all == 1) {
                 // Get file stats
                 file_stats(fd, files[a], &f_stats);
 				
@@ -316,21 +323,22 @@ int main(int argc, char *argv[]){
                 // Details
                 if (flag_long == 1) {
                     // Permission 
-					permission(struct stat *f_stats, char **permission);
+		    file_permission(f_stats, &permission);
                     printf("%s ", permission);
                     free(permission);
                     // User
-					file_user(struct stat *f_stats, char **user);
+           	    file_user(f_stats, &user);
                     printf("%s\t", user);
                     free(user);
                     // Group 
-					file_group(struct stat *f_stats, char **group)
+		    file_group(f_stats, &group);
                     printf("%s\t", group);
                     free(group);
                     // Size
                     printf("%d\t", file_size(f_stats));
                     // Modification time
-                    printf("%s\t", ctime(&f_stats.st_mtime));
+/*		    struct stat t_stats;
+                    printf("%s\t", ctime(&t_stats.st_mtime));*/
 					
                 } else { // No details
                     printf("%s\n", files[a]);
@@ -366,7 +374,7 @@ int main(int argc, char *argv[]){
 	d_index = 0;
 	while(d_index<path)
         free(d_names[d_index]);
-		d_index++
+		d_index++;
 		
     free(d_names);
 
