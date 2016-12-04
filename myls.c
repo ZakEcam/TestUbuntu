@@ -170,6 +170,7 @@ char* slash(const char *a, const char *b){
 
 int main(int argc, char *argv[]){
 /*Test main */
+	printf("%s \n","Variables");
 	//flags -a -l -R
 	int flag_all = 0;
 	int flag_long = 0;
@@ -241,6 +242,8 @@ int main(int argc, char *argv[]){
 		struct st_mtim;  //time of last modification
 		struct timespec st_ctim;
 	}*/
+	printf("%s \n","Argc c check");
+
 	//No need for redefining struct stat
 	//Directory and file stats
 	struct stat d_stats;
@@ -251,73 +254,97 @@ int main(int argc, char *argv[]){
 	extern int optind;
 	//Test Segmentation core dumped
 	if (argc < 2)
-		printf("%s", "here bug");
+		printf("%s \n", "arg c < 2");
 	if (argc - optind == 0){
 		path = 1;
+		printf("%s \n", "path = 1");
+		//Added to avoid segmetation core dumped
+		if((d_names = calloc(path, sizeof(char*))) == NULL){
+			perror(cmd_name);
+			return EXIT_FAILURE;
+		}
+		printf("%s \n", "After calloc");
+
 		d_names[0] = strdup(".");
+		printf("%s \n", "string duplicate ");
+		
 	} else {
+		printf("%s \n", "path !=1");
+		
 		//Not current directory argv[2] and more /sub/sub ...
 		path = argc - optind;
-		int i = optind;
-		
+		//int i = optind;
+		int i = 1;
 		while(i<argc){
 			int index_path = i - optind;
 			d_names[index_path] = strdup(argv[i]);
 			i++;
+		printf("%s \n", "while i<argc");
 		}
 	}
 	
 	//Main for open/read etc.
 	//while(d_index<path){
 	for(d_index = 0; d_index<path; d_index++){
+		printf("%s \n", "main while");
+		
 		//Open(2) Manpage
 		if ((fd = open(d_names[d_index], O_RDONLY))<0){
 			perror(cmd_name);
 			return EXIT_FAILURE;
+			printf("%s \n", "value return open<0");
 		}
 		
 		//If we have a file. S_ISDIR : This macro returns non-zero if the file is a directory
 		 if (S_ISDIR(d_stats.st_mode) == 0) {
-            filelength = 1;
+			printf("%s \n", "we have a file!");
+            		filelength = 1;
 			//Allocate memory dynamically
-            files = calloc(filelength, sizeof(char*));
-            files[0] = strdup(d_names[d_index]);
-            close(fd);
+            		files = calloc(filelength, sizeof(char*));
+            		files[0] = strdup(d_names[d_index]);
+            		close(fd);
 			//Below EXIT_FAILURE
-            fd = -1;
-        } else {
-				if (fd < 0) {
-					return EXIT_FAILURE;
-				} else {
-					while ((nread = syscall(SYS_getdents, fd, buf, BUF_SIZE)) > 0) {
-						bpos = 0;
-						while (bpos < nread) {
+            		fd = -1;
+        	} else {
+			if (fd < 0) {
+				printf("%s \n", "fd<0");
+				return EXIT_FAILURE;
+			} else {
+				while ((nread = syscall(SYS_getdents, fd, buf, BUF_SIZE)) > 0) {
+					printf("%s \n", "while syscall");
+					bpos = 0;
+					while (bpos < nread) {
+							printf("%s \n", "while bpos");
 							//Cast
 							dent = (struct linux_dirent *) (buf + bpos);
 							
 							bpos += dent->d_reclen;
-						}
 					}
 				}
-
-				return EXIT_SUCCESS;
+			}
+		printf("%s \n", "exit succes");
+		return EXIT_SUCCESS;
 		}
 		
 		if (flag_recursive == 1)
-            printf("%s:\n", d_names[d_index]);
+			printf("%s \n", "Recursive flag == 1");
+            		printf("%s:\n", d_names[d_index]);
 //		if (disorder_flag == 0)
 			//Ordering directories and files
    // !segmentation        qsort(files, filelength, sizeof(char*), alphaOrder);
 	int a;		
         for(a = 0; a < filelength; a++) {
+            printf("%s \n", "for a");
             f_hidden = files[a][0] == '.';
             // Filter hidden files
             if (flag_all == 1) {
+		printf("%s \n", "flag all");
                 // Get file stats
                 file_stats(fd, files[a], &f_stats);
-				
+
                 if (flag_recursive == 1) {
                     path_all = slash(d_names[d_index], files[a]);  
+		    printf("%s \n", "free path all");
                     free(path_all);
                 }
                 // Details
@@ -325,14 +352,17 @@ int main(int argc, char *argv[]){
                     // Permission 
 		    file_permission(f_stats, &permission);
                     printf("%s ", permission);
+		    printf("%s \n", "free permission");
                     free(permission);
                     // User
            	    file_user(f_stats, &user);
                     printf("%s\t", user);
+		    printf("%s \n", "free user");
                     free(user);
                     // Group 
 		    file_group(f_stats, &group);
                     printf("%s\t", group);
+ 		    printf("%s \n", "free group");
                     free(group);
                     // Size
                     printf("%d\t", file_size(f_stats));
@@ -343,13 +373,17 @@ int main(int argc, char *argv[]){
                 } else { // No details
                     printf("%s\n", files[a]);
                 }
+      	        printf("%s \n", "free file stats");
                 free(f_stats);
             }
+	    printf("%s \n", "free files array");
             free(files[a]);
         }
+	printf("%s \n", "free files");
         free(files);
         if (fd > -1)
-            close(fd);		
+	    printf("%s \n", "close file descriptor/directory");
+            close(fd);
 	}
 
 
@@ -372,11 +406,15 @@ int main(int argc, char *argv[]){
 	}*/
 	
 	d_index = 0;
-	while(d_index<path)
-        free(d_names[d_index]);
+	/*!!!!!!!!!!!!!! ./myls was doing infinite free causing aborted core
+	 because missing {} so no increment of directory index*/
+	while(d_index<path){
+        	printf("%s \n", "free directories array");
+		free(d_names[d_index]);
 		d_index++;
-		
-    free(d_names);
-
+	}
+	printf("%s \n", "free directories");
+    	free(d_names);
+	printf("%s \n", "End");	
 	return EXIT_SUCCESS;
 }
