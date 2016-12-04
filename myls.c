@@ -294,9 +294,14 @@ int main(int argc, char *argv[]){
 			return EXIT_FAILURE;
 			printf("%s \n", "value return open<0");
 		}
+		if (stat(d_names[d_index], &d_stats)){
+			perror(cmd_name);
+			return EXIT_FAILURE;
+			printf("%s \n", "stats error");
+		}
 		
 		//If we have a file. S_ISDIR : This macro returns non-zero if the file is a directory
-		 if (S_ISDIR(d_stats.st_mode) == 0) {
+		 if (!S_ISDIR(d_stats.st_mode)) {
 			printf("%s \n", "we have a file!");
             		filelength = 1;
 			//Allocate memory dynamically
@@ -306,6 +311,14 @@ int main(int argc, char *argv[]){
 			//Below EXIT_FAILURE
             		fd = -1;
         	} else {
+			//Last Warning segm core
+			size_t length= 0;
+			char **array;
+			*(&filelength) = 2;
+			*(&files) = calloc(*(&filelength),sizeof(char*));
+			if (files==NULL)
+				return EXIT_FAILURE;
+			//////
 			if (fd < 0) {
 				printf("%s \n", "fd<0");
 				return EXIT_FAILURE;
@@ -314,21 +327,32 @@ int main(int argc, char *argv[]){
 					printf("%s \n", "while syscall");
 					bpos = 0;
 					while (bpos < nread) {
-							printf("%s \n", "while bpos");
-							//Cast
-							dent = (struct linux_dirent *) (buf + bpos);
-							
-							bpos += dent->d_reclen;
+						printf("%s \n", "while bpos");
+						//Cast
+						dent = (struct linux_dirent *) (buf + bpos);
+						///Reallocating memory if needed
+						if (length == *(&filelength)){
+							// x2
+							*(&filelength) *=2;
+							array = realloc(*(&files),*(&filelength) *sizeof(char*));
+							*(&files) = array;
+						}
+						*(&files)[length] =strdup(dent->d_name);
+						length++;
+						///	
+						bpos += dent->d_reclen;
 					}
 				}
 			}
 		printf("%s \n", "exit succes");
-		return EXIT_SUCCESS;
+		//return EXIT_SUCCESS;
 		}
 		
-		if (flag_recursive == 1)
+		if (flag_recursive == 1){
+		//if (flag_recursive==1)
 			printf("%s \n", "Recursive flag == 1");
             		printf("%s:\n", d_names[d_index]);
+		}
 //		if (disorder_flag == 0)
 			//Ordering directories and files
    // !segmentation        qsort(files, filelength, sizeof(char*), alphaOrder);
