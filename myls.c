@@ -312,11 +312,11 @@ int main(int argc, char *argv[]){
             		fd = -1;
         	} else {
 			//Last Warning segm core
-			size_t length= 0;
+			size_t length = 0;
 			char **array;
 			*(&filelength) = 2;
 			*(&files) = calloc(*(&filelength),sizeof(char*));
-			if (files==NULL)
+			if (*&(files) == NULL)
 				return EXIT_FAILURE;
 			//////
 			if (fd < 0) {
@@ -332,18 +332,33 @@ int main(int argc, char *argv[]){
 						dent = (struct linux_dirent *) (buf + bpos);
 						///Reallocating memory if needed
 						if (length == *(&filelength)){
+							printf("%s \n","length ==filelength");
 							// x2
 							*(&filelength) *=2;
 							array = realloc(*(&files),*(&filelength) *sizeof(char*));
 							*(&files) = array;
 						}
+						printf("%s \n","Before strdup dent");
 						*(&files)[length] =strdup(dent->d_name);
+						printf("%s \n","After strdup dent");
 						length++;
-						///	
+						printf("%s \n","increment length");
+						printf("nread = %d \n",nread);
+						printf("before increment bpos = %d \n",bpos);
+						///
 						bpos += dent->d_reclen;
+						printf("after increment bpos = %d \n",bpos);
+
 					}
 				}
 			}
+		///Segmentation core error again length != filelength
+		printf("%s \n","length != filelength");
+		array = realloc(*(&files),length *sizeof(char*));
+		*(&files) = array;
+		*(&filelength) = length;
+
+		///
 		printf("%s \n", "exit succes");
 		//return EXIT_SUCCESS;
 		}
