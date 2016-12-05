@@ -270,6 +270,22 @@ int main(int argc, char *argv[]){
 		
 	} else {
 		printf("%s \n", "path !=1");
+
+        /*
+         * Here you must malloc d_names with size = argc-optind. And
+         * then fill it with the desired value.
+         * Example:
+         * path = argc-optind;
+         * d_names = calloc(path, sizeof(char*));
+         * if (d_names == NULL)
+         *     return EXIT_FAILURE;
+         * int i = optind;
+         * while (i < argc) {
+         *     int index_path = i - optind;
+         *     d_names[index_path] = strdup(argv[i]);
+         *     i++;
+         * }
+         */
 		
 		//Not current directory argv[2] and more /sub/sub ...
 		path = argc - optind;
@@ -314,12 +330,15 @@ int main(int argc, char *argv[]){
 			//Last Warning segm core
 			size_t length = 0;
 			char **array;
-			*(&filelength) = 2;
-			*(&files) = calloc(*(&filelength),sizeof(char*));
-			if (*&(files) == NULL)
+			filelength = 2;
+			files = calloc(filelength,sizeof(char*));
+			if (files == NULL)
 				return EXIT_FAILURE;
 			//////
 			if (fd < 0) {
+                /*
+                 * You already tested this case. See line 296
+                 */
 				printf("%s \n", "fd<0");
 				return EXIT_FAILURE;
 			} else {
@@ -331,15 +350,17 @@ int main(int argc, char *argv[]){
 						//Cast
 						dent = (struct linux_dirent *) (buf + bpos);
 						///Reallocating memory if needed
-						if (length == *(&filelength)){
+						if (length == filelength){
 							printf("%s \n","length ==filelength");
 							// x2
-							*(&filelength) *=2;
-							array = realloc(*(&files),*(&filelength) *sizeof(char*));
-							*(&files) = array;
+							filelength *=2;
+							array = realloc(files, filelength*sizeof(char*));
+                            if (array == NULL)
+                                return EXIT_FAILURE;
+							files = array;
 						}
 						printf("%s \n","Before strdup dent");
-						*(&files)[length] =strdup(dent->d_name);
+						files[length] = strdup(dent->d_name);
 						printf("%s \n","After strdup dent");
 						length++;
 						printf("%s \n","increment length");
