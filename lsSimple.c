@@ -244,29 +244,26 @@ int main(int argc, char *argv[]){
 			if ((flag_long) && (*dent->d_name != '.')) {
 				///////
 				// Get file stats
-                // Permission 
+               			// Permission 
 				file_permission(f_stats, &permission);
 				printf("%s ", permission);
-				//printf("%s \n", "free permission");
-				free(permission);
+				//free(permission);
 				// User
 				file_user(f_stats, &user);
 				printf("%s\t", user);
-				//printf("%s \n", "free user");
-				free(user);
+				//free(user);
 				// Group 
 				file_group(f_stats, &group);
 				printf("%s\t", group);
-				//printf("%s \n", "free group");
-				free(group);
+				//free(group);
 				// Size
 				printf("%d\t", file_size(f_stats));
 				// Modification time	
-				printf("%s\t", ctime(&f_stats.st_mtime));
+				printf("%s\t", ctime(&d_stats.st_mtime));
 				//////
-				if (stat(dent->d_name, &f_stats) == -1) {
+				if (stat(dent->d_name, &d_stats) == -1) {
 					fprintf(stderr, "%s: cannot look at %s: %s\n", cmd_name, "this directory stats", strerror(errno));
-                    return EXIT_FAILURE;
+                    			return EXIT_FAILURE;
 				}
 		}
 			//Recursive flag on subdirectories "Whileception"
@@ -288,12 +285,12 @@ int main(int argc, char *argv[]){
 					printf("-----subs-----\n");
 				}
 			}
-			bpos += d->d_reclen;
+			bpos += dent->d_reclen;
 			}
 		}
-		close(fd);
-		exit(EXIT_SUCCESS);		
-	}	
+		close(fd1);
+		return EXIT_SUCCESS;		
+
 	///////////////
 	
 }
