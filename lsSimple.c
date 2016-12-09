@@ -23,7 +23,7 @@ struct linux_dirent {
 	char d_name[];
 };
 //------------Functions---------//
-//Checking type
+//Checking type -> d_type easier
 int if_dir(char *file)
 {
 	struct stat stats;
@@ -43,16 +43,6 @@ int if_reg(char *file)
 }
 
 //Using struct stats
-int file_stats(int fd, char *file, struct stat **stat)
-{
-    struct stat *f_stats = *stat;
-    if (fd < 0) {
-        if (lstat(file, f_stats))
-            return EXIT_FAILURE;
-    } 
-    *stat = f_stats;
-    return EXIT_SUCCESS;
-}
 
 int file_size(struct stat *stats){
 	return stats->st_size;
@@ -244,22 +234,27 @@ int main(int argc, char *argv[]){
 			if ((flag_long) && (*dent->d_name != '.')) {
 				///////
 				// Get file stats
+			  	//file_stats(fd1, &f_stats);
                			// Permission 
-				file_permission(f_stats, &permission);
-				printf("%s ", permission);
+				/*file_permission(f_stats, &permission);
+				printf("%s ", permission);*/
 				//free(permission);
-				// User
-				file_user(f_stats, &user);
-				printf("%s\t", user);
+				// UserID
+				printf("%u\t", d_stats.st_uid);
+				//file_user(f_stats, &user);
+				//printf("%s\t", user);
 				//free(user);
-				// Group 
-				file_group(f_stats, &group);
-				printf("%s\t", group);
+				// GroupID
+				printf("%u\t", d_stats.st_gid); 
+				//file_group(f_stats, &group);
+				//printf("%s\t", group);
 				//free(group);
 				// Size
-				printf("%d\t", file_size(f_stats));
-				// Modification time	
-				printf("%s\t", ctime(&d_stats.st_mtime));
+				printf("%ld\t", d_stats.st_size);
+				//printf("%d\t", file_size(f_stats));
+				// Modification time
+				printf("%s\t  %s\t", ctime(&d_stats.st_mtime), dent->d_name);
+				//printf("%s\t", dent->d_name);
 				//////
 				if (stat(dent->d_name, &d_stats) == -1) {
 					fprintf(stderr, "%s: cannot look at %s: %s\n", cmd_name, "this directory stats", strerror(errno));
