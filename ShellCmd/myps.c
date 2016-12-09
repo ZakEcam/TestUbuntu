@@ -25,7 +25,8 @@ struct linux_dirent {
 };
 
 int main(int argc, char *argv[]) {
-	//flags -p -v
+	//flags -h -p -v
+	int flag_help = 0;
 	int flag_pid = 0;
 	int flag_version = 0;
 	//Variables
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]) {
 	cmd_name = argv[0];
 	char *p_id;
 	p_id = argv[2];
+	int process_found;
 
 	struct option opt[] ={
 			{"help", no_argument, NULL, 'h'},
@@ -51,10 +53,10 @@ int main(int argc, char *argv[]) {
 			{"version", no_argument, NULL, 'v'},
 			{0,0,0,0}
 	};
-	while ((c = getopt_long(argc, argv, "hpv",opt, NULL)) != -1){
+	while ((c = getopt_long(argc, argv, "hpv:",opt, NULL)) != -1){
 		switch(c){
 				case 'h':
-					printf("%s", "help");
+					flag_help = 1;
 					break;
 				case 'p':
 					flag_pid =  1;
@@ -62,13 +64,26 @@ int main(int argc, char *argv[]) {
 				case 'v':
 					flag_version =  1;
 					break;
+				case ':':
+					fprintf(stderr, "%s: option '-%c' requires argument.\n", cmd_name, optopt);
+					break;
 				case '?':
 				default :
-					fprintf(stderr, "%s: option '-%c' is invalid.\n", cmd_name, opt);
+					fprintf(stderr, "%s: option '-%c' is invalid.\n", cmd_name, optopt);
 					abort();
 		}
 	}
 	
+	//Help
+	if (flag_help){
+		printf("%s", "help");
+		return EXIT_SUCCESS;
+	}
+	//Missing argv[2]--------Avoiding segmentation core fault
+	if ((flag_pid) && (p_id == NULL)){
+		printf("Need argument for this option");
+		return EXIT_FAILURE;
+	}
 	// "/proc" process information pseudo-file system
 	fd = open("/proc", O_RDONLY | O_DIRECTORY);
 	
@@ -96,7 +111,7 @@ int main(int argc, char *argv[]) {
 			dent = (struct linux_dirent *)(buf + bpos);
 			d_type = *(buf + bpos + dent->d_reclen - 1);
 			//Process IDs are numbers
-			argument = *d_name;
+			argument = *dent->d_name;
 			if(isdigit(argument)){
 				// != open(2) - openat(2) pathname is not taken from root but from cwd here /proc/
 				rel_fd = openat(fd, dent->d_name, O_RDONLY | O_DIRECTORY);
@@ -120,8 +135,8 @@ int main(int argc, char *argv[]) {
 				// -p
 				if (flag_pid) {
 					//Check if ID exists
+					//If name in directory entries = input argument
 					if (strcmp(dent->d_name, p_id) == 0) {
-						int process_found;
 						process_found = 1;
 						//Read the buffer of the relative file descriptor
 						while((read(rel_fd2, buf, BUF_SIZE)) > 0){
