@@ -114,15 +114,15 @@ int main(int argc, char *argv[]) {
 		//Print current runlevel who -r
 		char a;
 		if (flag_runlvl){
-			if (ut->ut_type == RUN_LVL) {
+			if (ut->ut_type == 1) {
 				a = ut->ut_pid / 256;
-				if (a == 0) a = 'run-level';
+				if (a == 0) a = 'R';
 				printf("%c %c\n", a, ut->ut_pid % 256);
 				//TIME
-                if (asctime_r(&ut->ut_tv.tv_sec, &time) == NULL) {
+                /*if (asctime_r(&ut->ut_tv.tv_sec, &time) == NULL) {
                     perror(cmd_name);
                     return EXIT_FAILURE;
-                }
+                }*/
                 printf("%s\t", time);
 				//Close the utmpx database
 				endutxent();
@@ -147,17 +147,17 @@ int main(int argc, char *argv[]) {
 				//LINE
                 printf("%s\t", ut->ut_line);
 				//TIME
-                if (asctime_r(&ut->ut_tv.tv_sec, &time) == NULL) {
+                /*if (asctime_r(&ut->ut_tv.tv_sec, &time) == NULL) {
                     perror(cmd_name);
                     return EXIT_FAILURE;
-                }
+                }*/
                 printf("%s\t", time);
 				// List users logged in who -u
 				if (flag_users) {
 					//IDLE !!!!!find a way to print idle time ? . recently active etc
 					//printf("%s ", ut->ut_pid);
 					//PID
-					printf("%s ", ut->ut_pid);
+					printf("%d ", ut->ut_pid);
 				}
 				//COMMENT
                 printf("(%s)\t", ut->ut_host);
