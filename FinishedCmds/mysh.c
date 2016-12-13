@@ -24,10 +24,10 @@ int main()
         }
         char *p=strdup(buffer);//Sending a pointer on a new chains of char duplicate from our buffer
         pid_t process=fork();//Creation of a process son 
-		if (pid < 0)//Error
+		if (process < 0)//Error
 		{
-			printf("Failed fork.\n",strerror(errno));
-			return;
+			printf("%sFailed fork.\n",strerror(errno));
+			return EXIT_FAILURE;
 		}
         if (process==0)//we are in the son process
         {
@@ -35,7 +35,7 @@ int main()
 			char *tmp=strtok(p," ");//Cut the chains p by using space (each word between space will be separate)
 			char *sgn=strtok(NULL," ");
 			char *opt=strtok(NULL," ");
-			char arg=strtok(NULL," ");
+			char *arg=strtok(NULL," ");
 			sprintf(exec, "./%s", tmp);//Sends formatted output to a string pointed to, by exec eg.: ./myls
 			execlp(exec, tmp, sgn, opt, arg, NULL);//Execute a file
 			printf("%s\n",strerror(errno));//Error handling
@@ -44,8 +44,9 @@ int main()
         else//we are in the father process, waiting until the son has finished //waitpid(2) - Linux man page
         {
             int status;
+	    pid_t w;
 			do {
-					w = waitpid(cpid, &status, WUNTRACED | WCONTINUED);//Wait for process to change state
+					w = waitpid(process, &status, WUNTRACED | WCONTINUED);//Wait for process to change state
 					if (w == -1) {
 						perror("waitpid");
 						return EXIT_FAILURE;
