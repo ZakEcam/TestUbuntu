@@ -24,48 +24,47 @@ int main()
         }
         char *p=strdup(buffer);//Sending a pointer on a new chains of char duplicate from our buffer
         pid_t process=fork();//Creation of a process son 
-		if (process < 0)//Error
-		{
-			printf("%sFailed fork.\n",strerror(errno));
-			return EXIT_FAILURE;
-		}
+	if (process < 0)//Error
+	{
+		printf("%sFailed fork.\n",strerror(errno));
+		break ;
+	}
         if (process==0)//we are in the son process
         {
-			char exec[150];//Executable 
-			char *tmp=strtok(p," ");//Cut the chains p by using space (each word between space will be separate)
-			char *sgn=strtok(NULL," ");
-			char *opt=strtok(NULL," ");
-			char *arg=strtok(NULL," ");
-			sprintf(exec, "./%s", tmp);//Sends formatted output to a string pointed to, by exec eg.: ./myls
-			execlp(exec, tmp, sgn, opt, arg, NULL);//Execute a file
-			printf("%s\n",strerror(errno));//Error handling
-            exit(1);
+		char exec[150];//Executable 
+		char *tmp=strtok(p," ");//Cut the chains p by using space (each word between space will be separate)
+		char *sgn=strtok(NULL," ");
+		char *opt=strtok(NULL," ");
+		char *arg=strtok(NULL," ");
+		sprintf(exec, "./%s", tmp);//Sends formatted output to a string pointed to, by exec eg.: ./myls
+		execlp(exec, tmp, sgn, opt, arg, NULL);//Execute a file
+		printf("%s\n",strerror(errno));//Error handling
+          	exit(1);
         }
         else//we are in the father process, waiting until the son has finished //waitpid(2) - Linux man page
         {
-            int status;
-	    pid_t w;
-			do {
-					w = waitpid(process, &status, WUNTRACED | WCONTINUED);//Wait for process to change state
-					if (w == -1) {
-						perror("waitpid");
-						return EXIT_FAILURE;
-					}
-					if (WIFEXITED(status)) {
-						printf("exited, status=%d\n", WEXITSTATUS(status));
-					} else if (WIFSIGNALED(status)) {
-						printf("killed by signal %d\n", WTERMSIG(status));
-					} else if (WIFSTOPPED(status)) {
-						printf("stopped by signal %d\n", WSTOPSIG(status));
-					} else if (WIFCONTINUED(status)) {
-						printf("continued\n");
-					}
-			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-			return EXIT_SUCCESS;
+                int status;
+	        pid_t w;
+		
+		w = waitpid(process, &status, 0);//Wait for process to change state
+		if (w == -1) 
+		{
+			perror("waitpid");
+			break;
 		}
-        
+		if (WIFEXITED(status)) {
+			printf("exited, status=%d\n", WEXITSTATUS(status));
+		} else if (WIFSIGNALED(status)) {
+			printf("killed by signal %d\n", WTERMSIG(status));
+		} else if (WIFSTOPPED(status)) {
+			printf("stopped by signal %d\n", WSTOPSIG(status));
+		} else if (WIFCONTINUED(status)) {
+			printf("continued\n");
+		}
+		//break;
+	}
         free(p);
     }
-	
+
 	return 0;
 }
