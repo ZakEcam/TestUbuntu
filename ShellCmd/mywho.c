@@ -50,8 +50,9 @@ int main(int argc, char *argv[]) {
 	//Needed for -q options number of users
 	int nb = 0;
 	//Array and structure for TIME
-	char time[50];		
-	struct tm t;//Unused
+	int ar_len = 200;
+	char time[ar_len];		
+	struct tm t;
 	//Structure utmpx
 	struct utmpx *ut;
 	//For error on cmd 
@@ -119,53 +120,74 @@ int main(int argc, char *argv[]) {
 				if (a == 0) a = 'R';
 				printf("%c %c\n", a, ut->ut_pid % 256);
 				//TIME
-                /*if (asctime_r(&ut->ut_tv.tv_sec, &time) == NULL) {
-                    perror(cmd_name);
-                    return EXIT_FAILURE;
-                }*/
-                printf("%s\t", time);
+                		if (localtime_r((time_t *)&ut->ut_tv.tv_sec, &t) == NULL) {
+                    			perror(cmd_name);
+                    			return EXIT_FAILURE;
+                		}
+				//Format date and time %Y-%m-%d %H-%M
+				if (strftime(time,ar_len, "%Y-%m-%d %H-%M",&t)<0){
+					perror(cmd_name);
+					return EXIT_FAILURE;
+				}
+                		printf("%s\t", time);
 				//Close the utmpx database
 				endutxent();
 				return EXIT_SUCCESS;
 			}
 		}
 		//Pint Normal process
-        if (ut->ut_type == USER_PROCESS) {
+        	if (ut->ut_type == USER_PROCESS) {
 			//Print line of column headings who -H
 			if (flag_heading && nb == 0 && !flag_users)
-                    printf("NAME\t LINE\t TIME\t \t \t COMMENT\n");	
+                    		printf("NAME\tLINE\tTIME\t\t\tCOMMENT\n");	
 			if (flag_heading && nb == 0 && flag_users)
-                    printf("NAME\t LINE\t TIME\t \t \tIDLE\tPID\t COMMENT\n");	
+                    		printf("NAME\tLINE\tTIME\t\t\tIDLE\tPID\tCOMMENT\n");	
 			//Print all login names and number of users logged on who -q
-            if (flag_count) {
+            		if (flag_count) {
 				//NAME
-                printf("%s ", ut->ut_user);
+                		printf("%s ", ut->ut_user);
 			//Basic who
-            } else {
-                //NAME
-                printf("%s\t", ut->ut_user);
+            		} else {
+                		//NAME
+                		printf("%s\t", ut->ut_user);
 				//LINE
-                printf("%s\t", ut->ut_line);
+                		printf("%s\t", ut->ut_line);
 				//TIME
-                /*if (asctime_r(&ut->ut_tv.tv_sec, &time) == NULL) {
-                    perror(cmd_name);
-                    return EXIT_FAILURE;
-                }*/
-                printf("%s\t", time);
+                		/*if (asctime_r(&ut->ut_tv.tv_sec, time) == NULL) {
+                    			perror(cmd_name);
+                    			return EXIT_FAILURE;
+                		}*/
+				//TIME
+                		if (localtime_r((time_t *)&ut->ut_tv.tv_sec, &t) == NULL) {
+                    			perror(cmd_name);
+                    			return EXIT_FAILURE;
+                		}
+				//Format date and time %Y-%m-%d %H-%M
+				if (strftime(time,ar_len, "%F %R",&t)<0){
+					perror(cmd_name);
+					return EXIT_FAILURE;
+				}
+                		printf("%s\t", time);
 				// List users logged in who -u
 				if (flag_users) {
 					//IDLE !!!!!find a way to print idle time ? . recently active etc
 					//printf("%s ", ut->ut_pid);
+					if(1<t.tm_min<10 && t.tm_hour == 0){
+						printf("%s\t", ".");
+					}
+					if(t.tm_hour>1){
+						printf("%s\t", "?");
+					}
 					//PID
 					printf("%d ", ut->ut_pid);
 				}
 				//COMMENT
-                printf("(%s)\t", ut->ut_host);
-                printf("\n");
-            }
-            nb++;
-        }
-    }
+                		printf("(%s)\t", ut->ut_host);
+                		printf("\n");
+            		}
+            		nb++;
+        	}
+    	}
 	//After the while - getting the number of users from nb value
 	if (flag_count)
         printf("\n#users=%d\n", nb);
