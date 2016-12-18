@@ -1,11 +1,12 @@
-#include<stdio.h>
 #include<fcntl.h>
-#include<unistd.h>
+#include<stdio.h>
+#include<stdlib.h>
 #include<sys/stat.h>
 #include<sys/types.h>
+#include<unistd.h>
 int main(int argc,char *argv[])
 {
-	int fd=0
+	int fd=0;
 	int r;
 	char buffer[100];
 	struct stat s;
@@ -33,8 +34,8 @@ int main(int argc,char *argv[])
 	//This macro returns non-zero if the file is a regular file
 	if(S_ISREG(s.st_mode)<0)
 	{
-	   printf("Not a Regular FILE");
-	   return EXIT_FAILURE;
+		printf("Not a Regular FILE");
+	   	return EXIT_FAILURE;
 	}
 	//Get user identity and check if it matches 
 	if(geteuid()==s.st_uid)
@@ -57,7 +58,7 @@ int main(int argc,char *argv[])
 	fd=open(argv[1],O_RDONLY);
 	//Read / Write
 	while((r=read(fd,buffer,100))>0)
-		   write(1,buffer,r);
+		write(1,buffer,r);
 		   
 	return EXIT_SUCCESS;
 }
