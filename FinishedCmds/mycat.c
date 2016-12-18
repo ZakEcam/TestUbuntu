@@ -1,15 +1,39 @@
 #include<fcntl.h>
+#include <getopt.h>
 #include<stdio.h>
 #include<stdlib.h>
+#include <string.h>
 #include<sys/stat.h>
 #include<sys/types.h>
 #include<unistd.h>
 int main(int argc,char *argv[])
-{
+{	
+	//flags -E -n
+	int flag_E = 0;
+	int flag_n = 0;
 	int fd=0;
+	int line = 0;
 	int r;
 	char buffer[100];
 	struct stat s;
+	struct option opt[] ={
+		{"number", no_argument, NULL, 'n'},
+		{"show-ends", no_argument, NULL, 'E'},
+		{0,0,0,0}
+	};
+	while ((c = getopt_long(argc, argv, "En",opt, NULL)) != -1){
+		switch(c){
+			case 'E':
+				flag_E = 1;
+				break;
+			case 'n':
+				flag_n =  1;
+				break;
+			case '?':
+			default :
+				abort();
+		}
+	}
 	//Missing or overflowed argument
 	//Basic cat with one argument only
 	if(argc!=2)
@@ -57,8 +81,14 @@ int main(int argc,char *argv[])
 	//Open
 	fd=open(argv[1],O_RDONLY);
 	//Read / Write
-	while((r=read(fd,buffer,100))>0)
+	while((r=read(fd,buffer,100))>0){
+		//Print line number
+		if (flag_n) {
+            fprintf(stdout, "%4d  ", ++line);
+            fflush(stdout);
+        }
+		//Basic cat
 		write(1,buffer,r);
-		   
+	}	   
 	return EXIT_SUCCESS;
 }
