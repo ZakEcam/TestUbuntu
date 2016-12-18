@@ -6,15 +6,15 @@
 int main( void )
 {
 	//Current working directory
-    char* cwd;
+   	char* cwd;
 	//Maximum number of bytes in a pathname, including the terminating null character.
 	//Minimum Acceptable Value: {_POSIX_PATH_MAX}
-    char buffer[PATH_MAX + 1];
+    	char buffer[PATH_MAX + 1];
 	//Get current working directory
-    cwd = getcwd( buffer, PATH_MAX + 1 );
-    if( cwd != NULL ) {
-        printf( "%s\n", cwd );
-    }
+    	cwd = getcwd( buffer, PATH_MAX + 1 );
+    	if( cwd != NULL ) {
+        	printf( "%s\n", cwd );
+    	}
 
-    return EXIT_SUCCESS;
+    	return EXIT_SUCCESS;
 }
