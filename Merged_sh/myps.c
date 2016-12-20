@@ -15,6 +15,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#define VERSION 1.0
+
 #define BUF_SIZE 1024
 //Structure for directory entry
 struct linux_dirent {
@@ -49,10 +51,10 @@ int main(int argc, char *argv[]) {
 	struct option opt[] ={
 			{"help", no_argument, NULL, 'h'},
 			{"pid", required_argument, NULL, 'p'},
-			{"version", no_argument, NULL, 'v'},
+			{"version", no_argument, NULL, 'V'},
 			{0,0,0,0}
 	};
-	while ((c = getopt_long(argc, argv, "hpv:",opt, NULL)) != -1){
+	while ((c = getopt_long(argc, argv, "hp:V",opt, NULL)) != -1){
 		switch(c){
 				case 'h':
 					flag_help = 1;
@@ -60,7 +62,7 @@ int main(int argc, char *argv[]) {
 				case 'p':
 					flag_pid =  1;
 					break;
-				case 'v':
+				case 'V':
 					flag_version =  1;
 					break;
 				case ':':
@@ -74,7 +76,12 @@ int main(int argc, char *argv[]) {
 	}
 	// -h
 	if (flag_help){
-		printf("%s", "ps -p [p_id] or --pid [p_id] : search process by its ID");
+		printf("%s", "ps -p [p_id] or --pid [p_id] : search process by its ID \n");
+		return EXIT_SUCCESS;
+	}
+	// -V
+	if(flag_version){
+		printf("my ps version %.1f \n",VERSION);
 		return EXIT_SUCCESS;
 	}
 	//Missing argv[2]--------Avoiding segmentation core fault
