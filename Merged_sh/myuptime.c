@@ -14,9 +14,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/sysinfo.h>
-
 #define BUF_SIZE 1024
-
 //Main
 int main(int argc, char *argv[]) {
 	//flags -p -s
@@ -50,7 +48,6 @@ int main(int argc, char *argv[]) {
 					abort();
 		}
 	}
-
 	// "/proc" process information pseudo-file system
 	fd = open("/proc", O_RDONLY | O_DIRECTORY);
 	//Error
@@ -58,10 +55,8 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr,"%s: cannot open %s: %s\n", cmd_name, "this directory", strerror(errno));
         	return EXIT_FAILURE;
 	}
-
 	// Read
-    fd_uptime = openat(fd, "uptime", O_RDONLY);
-
+    	fd_uptime = openat(fd, "uptime", O_RDONLY);
     	//Read uptime in /proc
     	read(fd_uptime, buf, BUF_SIZE);
     	//cut the buffer in small part
@@ -69,19 +64,15 @@ int main(int argc, char *argv[]) {
     	char *token;
     	int sec,min,hours;
     	token=strtok(buf, s);
-
     	//Converting second in proper format
     	sec = atoi(token)%60;//atoi() convert char in int
     	min = atoi(token)/60%60;
     	hours = atoi(token)/3600%24;
-
     	//Get current time
    	time_t current = time (NULL);
    	struct tm current_time = *localtime (&current);
    	char s_now[sizeof "HH:MM:SS"];
    	strftime (s_now, sizeof s_now, "%H:%M:%S", &current_time);//format date and time manpage strftime
-
-
     	// -p
 	if (flag_pretty){
 		printf("up: %d hours %d min\n",hours,min);
