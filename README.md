@@ -5,4 +5,9 @@ Zak
 
 PS, WHO, UPTIME, CAT, PWD
 
-#Main Folder Merged_sh from branch master
+#Branch Master
+#Folder Merged_sh
+#Compile with Waf
+ $python waf configure
+ $python waf build
+
