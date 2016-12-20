@@ -1,1 +1,6 @@
-# gittest
+# PROJET OS
+Sh4
+Yassine
+Zak
+
+PS, WHO, UPTIME, CAT, PWD
