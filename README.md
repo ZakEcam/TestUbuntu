@@ -1,13 +1,21 @@
-# PROJET OS
-Sh4
+<snippet>
+  <content><![CDATA[
+# ${1:Project OS}
+TODO: Implementing PS, WHO, UPTIME, CAT, PWD 
+## Contributors
 Yassine
 Zak
+## Group
+Sh4
+## Shell
+1. Go to master branch
+2. Go to Merged_sh folder
+3. Find all commands with waf and wscript + shell
 
-PS, WHO, UPTIME, CAT, PWD
+## Compile with Waf
+1. $python waf configure
+2. $python waf build
 
-#Branch Master
-#Folder Merged_sh
-#Compile with Waf
-$python waf configure
-$python waf build
-
+]]></content>
+  <tabTrigger>readme</tabTrigger>
+</snippet>
