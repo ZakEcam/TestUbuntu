@@ -1,0 +1,2 @@
+python waf configure
+python waf build
